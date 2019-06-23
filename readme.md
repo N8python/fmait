@@ -31,22 +31,22 @@ async function getFirstFollowers(users){
 
 }
 ```
-`fmait` is an `async` function, so we can return the result of calling it with `await`:
+`fmait` is an `async` function, so we can return the result of calling it without `await`, because the promise it returns can be `await`ed in another async function:
 ```js
 async function getFirstFollowers(users){
-    return await fmait(/*The magic happens here*/);
+    return fmait(/*The magic happens here*/);
 }
 ```
 `fmait` takes a array of callbacks, used as transformations, as its first parameter, which we'll go over later. For the second parameter, `fmait` takes an array that the transformations from the first parameter will be applied to:
 ```js
 async function getFirstFollowers(users){
-    return await fmait([/*transformation callbacks go here*/], users);
+    return fmait([/*transformation callbacks go here*/], users);
 }
 ```
 First, the list of users need to be transformed into API urls. Github has a wonderful API that we can use:
 ```js
 async function getFirstFollowers(users){
-    return await fmait([
+    return fmait([
         x => "https://api.github.com/users/" + x
     ], users);
 }
@@ -57,14 +57,14 @@ callback function to a promise using `Promise.resolve`, which it then `await`s.
 You may be worried that `fmait` will individually `await` each item of the array. Good news: It dosen't! It uses `Promise.all` to `await` all of the items of the array concurrently. Now, we need to `fetch` the data from the url. You may be tempted to create an `async` callback function, but your callback function needs to return a `Promise`:
 ```js
 async function getFirstFollowers(users){
-    return await fmait([
+    return fmait([
         x => "https://api.github.com/users/" + x,
         x => fetch(x), // The result of the last callback is passed to the next. This creates a pipeline of functions
         x => x.json() // The promise is resolved behind the scenes with await, allowing you to continue to the next transformation as if you had awaited the promise manually
     ], users);
 }
 ```
-So, the general layout of the `fmait` function is (ignoring error handling):
+So, the general layout of the `fmait` function is:
 
 # Step 1:
 Map the first transformation in the list of callbacks over the array. If the callback dosen't 
@@ -77,7 +77,7 @@ If all the transformations have been applied, return from the function. Otherwis
 So, to complete the function:
 ```js
 async function getFirstFollowers(users){
-    return await fmait([
+    return fmait([
         x => "https://api.github.com/users/" + x,
         x => fetch(x),
         x => x.json(),
