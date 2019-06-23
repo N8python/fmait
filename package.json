@@ -1,6 +1,6 @@
 {
     "name": "fmait",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "An asynchronous, concurrent library for creating efficient, easy-to-understand promise pipelines.",
     "main": "index.js",
     "scripts": {
